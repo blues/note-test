@@ -6,8 +6,13 @@ import serial
 import time
 import json
 
+
 def log(s: str):
-    print(s, flush=True)
+    global start
+    if start==None:
+        start = time.time()
+    ts = time.time()-start
+    print(f"{ts}: {s}", flush=True)
 
 def try_transaction(card: Notecard, req: dict):
     result: dict = card.Transaction(req)
@@ -98,7 +103,7 @@ def open_notecard(args):
     last_error = None
     while not card and check_timed_out(start_time, timeout, "open Notecard"):
         if count > 0:
-            time.sleep(1)
+            time.sleep(10)
         try:
             port = serial.Serial(port=args.serial_port, baudrate=args.baudrate)
             card = notecard.OpenSerial(port)
