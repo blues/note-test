@@ -10,7 +10,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
             - name: env
-              runs: |
+              run: |
                 env
                 echo $NOTECARD_SERIAL_PORT
                 echo ${{ env.NOTECARD_SERIAL_PORT }}
