@@ -122,7 +122,7 @@ def main(args):
     while not success and retries:
         try:
             retries -= 1
-            log("Opening Notecard...")
+            log(f"Opening Notecard, {retries} attempts remaining...")
             card = open_notecard(args)
             log(f"Updating firmware: {args}")
             update_notecard_firmware(card, args.filename, args.version, args.timeout)
@@ -131,8 +131,10 @@ def main(args):
             last_error = e
             time.sleep(20)  # sleep to give the Notecard time to restart
     if last_error:
-        raise last_error
-    log("Success. Exiting.")
+        log(last_error)
+        return last_error
+    else:
+        log("Success. Exiting.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -167,13 +169,13 @@ if __name__ == '__main__':
         '-r',
         '--retries',
         required=False,
-        default=3,
+        default=5,
         help='How many times the DFU is retried on error.')
 
     parser.add_argument('-c',
         '--card-timeout',
         required=False,
-        default=30,
+        default=60, # 60 secs to wait for the notecard to connect
         help='How long, in seconds, to wait for the Notecard to become available.')
 
     parser.add_argument('-t',
