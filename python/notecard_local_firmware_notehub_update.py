@@ -7,7 +7,7 @@ import time
 import json
 
 def log(s: str):
-    print(str, flush=True)
+    print(s, flush=True)
 
 def try_transaction(card: Notecard, req: dict):
     result: dict = card.Transaction(req)
