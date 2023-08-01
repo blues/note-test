@@ -23,6 +23,5 @@ runs:
       shell: bash
       working-directory: python
       run: |
-        pip install -r requirements.txt
-        echo         python notecard_local_firmware_notehub_update.py -p '${{ inputs.serial-port }}' -f '${{ inputs.filename }}'' -v '${{ inputs.version }}'
-        python notecard_local_firmware_notehub_update.py -p '${{ inputs.serial-port }}' -f '${{ inputs.filename }}'' -v '${{ inputs.version }}'
+        pip3 install -r requirements.txt
+        python3 -v ./notecard_local_firmware_notehub_update.py -p '${{ inputs.serial-port }}' -f '${{ inputs.filename }}'' -v '${{ inputs.version }}'
