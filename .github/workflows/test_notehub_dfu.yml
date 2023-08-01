@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
 jobs:
     notecard-notehub-DFU:
-        runs-on: self-hosted notecard-usb
+        runs-on: [self-hosted, notecard-usb]
         steps:
             # This does two DFUs, so that we know at least one of them will fully execute
             # Regardless of what version is already on the device.
