@@ -1,0 +1,23 @@
+name: CI
+on:
+    pull_request:
+    workflow_dispatch:
+jobs:
+    notecard-notehub-DFU:
+        runs-on: self-hosted notecard-usb
+        steps:
+            # This does two DFUs, so that we know at least one of them will fully execute
+            # Regardless of what version is already on the device.
+            - name: Notehub DFU pass 1
+              uses: ./.github/actions/notecard-dfu.yml
+              with:
+                serial-port: ${{ env.NOTECARD_SERIAL_PORT }}
+                version: "notecard-5.1.1.16026"
+                filename: "notecard-5.1.1.16026$20230511152328.bin"
+
+            - name: Notehub DFU pass 2
+              uses: ./.github/actions/notecard-dfu.yml
+              with:
+                serial-port: ${{ env.NOTECARD_SERIAL_PORT }}
+                version: "notecard-4.4.1.4015700"
+                filename: "notecard-4.4.1.4015700$20230505180038.bin"

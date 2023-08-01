@@ -1,0 +1,25 @@
+name: Notecard DFU
+description: Ensures a Notecard is running a version of firmware
+inputs:
+  serial-port:
+    required: true
+    description: The serial port of the Notecard to update
+  filename:
+    required: true
+    description: The filename of the firmware to update to
+  version:
+    required: true
+    description: The version of the firmware as reported by `card.version`
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create and start virtual environment
+      run: |
+       python3 -m venv venv
+       source venv/bin/activate
+    - name: Install dependencies
+      working-directory: python
+      run: |
+        pip install -r requirements.txt
+        python notecard_local_firmware_notehub_update.py -p ${{ inputs.serial-port }} -f ${{ inputs.filename }} -v ${{ inputs.version }}
