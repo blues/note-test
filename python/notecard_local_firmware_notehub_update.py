@@ -116,7 +116,9 @@ def main(args):
     while not success and retries:
         try:
             retries -= 1
+            print("Opening Notecard...")
             card = open_notecard(args)
+            print(f"Updating firmware: {args}")
             update_notecard_firmware(card, args.filename, args.version, args.timeout)
             success = True
         except Exception as e:
@@ -124,6 +126,7 @@ def main(args):
             time.sleep(20)  # sleep to give the Notecard time to restart
     if last_error:
         raise last_error
+    print("Success. Exiting.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

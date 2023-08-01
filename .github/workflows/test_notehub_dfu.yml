@@ -10,10 +10,13 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v3
             - name: Capture Environment
+              # cannot use ${{ env.MY_VAR }} in action inputs, so the variables are captured
+              # as outputs of this action.
               run: echo "serial-port=$NOTECARD_SERIAL_PORT" >> $GITHUB_OUTPUT
               id: capture-env
-            # This does two DFUs, so that we know at least one of them will fully execute
-            # Regardless of what version is already on the device.
+
+            # This workflow does two DFUs, so that we know at least one of
+            # them will fully execute, irrespective of what version is already on the device.
             - name: Notehub DFU pass 1
               uses: ./.github/actions/notecard-dfu
               with:
