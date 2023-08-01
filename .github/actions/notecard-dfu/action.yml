@@ -15,10 +15,12 @@ runs:
   using: 'composite'
   steps:
     - name: Create and start virtual environment
+      shell: bash
       run: |
        python3 -m venv venv
        source venv/bin/activate
     - name: Install dependencies
+      shell: bash
       working-directory: python
       run: |
         pip install -r requirements.txt
