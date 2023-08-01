@@ -6,6 +6,9 @@ import serial
 import time
 import json
 
+def log(s: str):
+    print(str, flush=True)
+
 def try_transaction(card: Notecard, req: dict):
     result: dict = card.Transaction(req)
     if result.get("err"):
@@ -18,9 +21,9 @@ def update_notecard_firmware(card: Notecard, filename: str, version: str, timeou
     # check current version
     if version:
         card_version = try_transaction(card, {"req":"card.version"})
-        print(card_version["version"])
+        log(f"current version: {card_version['version']}")
         if version==card_version["version"]:
-            print(f"Skipping update. Notecard firmware at version requested: {version}.")
+            log(f"Skipping update. Notecard firmware at version requested: {version}.")
             return
 
     # stop any current DFU operation
@@ -48,11 +51,11 @@ def update_notecard_firmware(card: Notecard, filename: str, version: str, timeou
                           start_time=start_time, timeout_secs=timeout, check_error=False)
         wait_for_dfu_mode(card, lambda mode: mode=="completed",
                           start_time=start_time, timeout_secs=timeout)
-        print("DFU update complete.")
+        log("DFU update complete.")
 
         card_version = try_transaction(card, {"req":"card.version"})
         actual_version = card_version["version"]
-        print(actual_version)
+        log(f"current version: {actual_version}")
         if version != actual_version:
             raise RuntimeError(f"DFU update complete, version mismatch. Expected: {version}, actual: {actual_version}")
     finally:
@@ -68,12 +71,12 @@ def wait_for_dfu_mode(card, mode_predicate, poll_interval_secs=5, status_timeout
     req_dfu_status =  {"req":"dfu.status",  "name": "card"}
     dfu_status: dict = try_transaction(card, req_dfu_status)
     last_status: dict = dfu_status
-    print(dfu_status)
+    log(f"dfu status: {dfu_status}")
 
     while not mode_predicate(dfu_status["mode"]) and check_timed_out(start_time, timeout_secs, "DFU timeout") and check_timed_out(status_start_time, status_timeout, "DFU status timeout"):
         if last_status != dfu_status:
             status_start_time = start_timeout()
-            print(dfu_status)
+            log(f"dfu status: {dfu_status}")
         last_status = dfu_status
         if last_status["mode"] == "error" and check_error:
             raise RuntimeError(f"DFU update failed. {dfu_status}")
@@ -116,9 +119,9 @@ def main(args):
     while not success and retries:
         try:
             retries -= 1
-            print("Opening Notecard...")
+            log("Opening Notecard...")
             card = open_notecard(args)
-            print(f"Updating firmware: {args}")
+            log(f"Updating firmware: {args}")
             update_notecard_firmware(card, args.filename, args.version, args.timeout)
             success = True
         except Exception as e:
@@ -126,7 +129,7 @@ def main(args):
             time.sleep(20)  # sleep to give the Notecard time to restart
     if last_error:
         raise last_error
-    print("Success. Exiting.")
+    log("Success. Exiting.")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
