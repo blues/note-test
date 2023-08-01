@@ -5,6 +5,8 @@ on:
 jobs:
     
     notecard-notehub-DFU:
+        env:
+            NOTECARD_SERIAL_PORT:
         runs-on: [self-hosted, notecard-usb]
         steps:
             - name: Checkout
