@@ -7,10 +7,8 @@ import time
 import json
 
 
+start = time.time()
 def log(s: str):
-    global start
-    if start==None:
-        start = time.time()
     ts = time.time()-start
     print(f"{ts}: {s}", flush=True)
 
