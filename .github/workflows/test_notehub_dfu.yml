@@ -6,6 +6,9 @@ jobs:
     notecard-notehub-DFU:
         runs-on: [self-hosted, notecard-usb]
         steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
             # This does two DFUs, so that we know at least one of them will fully execute
             # Regardless of what version is already on the device.
             - name: Notehub DFU pass 1
