@@ -48,7 +48,7 @@ jobs:
                 allow: true
                 version: "100"
                 target: "fake-target"
-                continue-on-error: true
+              continue-on-error: true
 
             - name: Verify Query 2
               env:
