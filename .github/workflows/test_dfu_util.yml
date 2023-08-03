@@ -1,0 +1,28 @@
+name: CI
+on:
+#    pull_request:
+    workflow_dispatch:
+jobs:
+
+    notecard-dfu-util:
+        runs-on: [self-hosted, notecard-usb]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Capture Environment
+              # cannot use ${{ env.MY_VAR }} in action inputs, so the variables are captured
+              # as outputs of this action.
+              run: |
+                if [ -z "$NOTECARD_SERIAL_PORT" ]; then echo "::error ::NOTECARD_SERIAL_PORT not set."; fi
+                if [ -z "$NOTECARD_DFU_SERIAL" ]; then echo "::error ::NOTECARD_DFU_SERIAL not set."; fi
+                echo "serial-port=$NOTECARD_SERIAL_PORT" >> $GITHUB_OUTPUT
+                echo "dfu-util-serial=$NOTECARD_DFU_SERIAL" >> $GITHUB_OUTPUT
+              id: capture-env
+
+            - name: Notehub firmware update via dfu-util
+              uses: ./.github/actions/notecard-dfu-util
+              with:
+                serial-port: ${{ steps.capture-env.outputs.serial-port }}
+                dfu-util-serial: ${{ steps.capture-env.outputs.dfu-util-serial }}
+                version: "notecard-5.2.1.16248"
+                filename: "notecard-5.2.1.16248$20230731172718.bin"
