@@ -55,11 +55,12 @@ jobs:
                 # pass via an env var to avoid removing the double quotes in the json
                 # https://github.com/orgs/community/discussions/32012
                 JSON: ${{ steps.nfq2.outputs.firmware }}
+                firmware_name: ${{ steps.nfq2.outputs.firmware && fromJSON(steps.nfq2.outputs.firmware).name }}
               run: |
                 echo Firmware found is $JSON
-                echo Firmware name 1 '${{ fromJSON(env.JSON).name }}'
+                echo Firmware name 1 '${{ env.firmware_name }}'
                 # have to use single quotes so the shell doesn't interpolate the $ in the name
-                if [[ '${{ fromJSON(steps.nfq1.outputs.firmware).name }}' != "" ]]; then
-                    echo Expected firmware not found. Got '${{ fromJSON(steps.nfq1.outputs.firmware).name }}' but wanted $expected_firmware
+                if [[ -n '${{ env.firmware_name }}' ]]; then
+                    echo Expected firmware not to be found found. Got '${{ env.firmware_name }}'
                     exit 1
                 fi
