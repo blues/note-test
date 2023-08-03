@@ -33,6 +33,7 @@ jobs:
                 filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
 
             - name: Enter bootloader
+              shell: bash
               run: |
                 dfu-util -S "$NOTECARD_DFU_SERIAL" -l || echo bootloader > $NOTECARD_SERIAL_PORT
 
@@ -43,5 +44,6 @@ jobs:
 #                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
             - name: Run dfu-util
               working-directory: python
+              shell: bash
               run: |
                 dfu-util -S "$NOTECARD_DFU_SERIAL" -a 0 -s 0x8000000:leave -D '${{ fromJSON(steps.query.outputs.firmware).name }}'
