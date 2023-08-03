@@ -1,0 +1,27 @@
+name: Notecard dfu-util action
+description: Ensures a Notecard is running a version of firmware via dfu-util
+inputs:
+  dfu-util-serial:
+    required: true
+    description: The `serial` number for the Notecard from `dfu-util -l` when in bootloader mode.
+  filename:
+    required: true
+    description: The local filename of the firmware to flash.
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create and start virtual environment
+      shell: bash
+      run: |
+       python3 -m venv venv
+       source venv/bin/activate
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip3 install -r requirements.txt
+    - name: Update firmware
+      shell: bash
+      working-directory: python
+      run: |
+        PYTHONUNBUFFERED=1 python3 -u ./notecard_dfu_util.py --serial-number '${{ inputs.dfu-util-serial }}' -f '${{ inputs.filename }}' '${{ inputs.filename }}'
