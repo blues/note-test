@@ -25,4 +25,4 @@ runs:
       shell: bash
       working-directory: python
       run: |
-        PYTHONUNBUFFERED=1 python3 -u ./notecard_dfu_util.py --serial-number '${{ inputs.dfu-util-serial }}' -f '${{ inputs.filename }}' '${{ inputs.filename }}'
+        PYTHONUNBUFFERED=1 python3 -u ./notecard_dfu_util.py --serial-number '${{ inputs.dfu-util-serial }}' '${{ inputs.filename }}'
