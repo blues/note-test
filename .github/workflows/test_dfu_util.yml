@@ -36,8 +36,11 @@ jobs:
               run: |
                 dfu-util -S "$NOTECARD_DFU_SERIAL" -l || echo bootloader > $NOTECARD_SERIAL_PORT
 
-            - name: Firmware update via dfu-util
-              uses: ./.github/actions/notecard-dfu-util
-              with:
-                dfu-util-serial: ${{ steps.capture-env.outputs.dfu-util-serial }}
-                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
+#            - name: Firmware update via dfu-util
+#              uses: ./.github/actions/notecard-dfu-util
+#              with:
+#                dfu-util-serial: ${{ steps.capture-env.outputs.dfu-util-serial }}
+#                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
+            - name: Run dfu-util
+              runs: |
+                dfu-util -S "$NOTECARD_DFU_SERIAL" -a 0 -s 0x8000000:leave -D '${{ fromJSON(steps.query.outputs.firmware).name }}'
