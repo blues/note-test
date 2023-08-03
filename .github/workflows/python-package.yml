@@ -1,0 +1,17 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python package
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/python-ci.yml
+    secrets: inherit
+    with:
+      notehub_notify: false   # don't want notifications for this project at present
+      coveralls: false        # add and test coveralls at a later time

@@ -1,9 +1,8 @@
-name: CI
+name: Test Notecard firmware update via Notehub
 on:
-    pull_request:
+#    pull_request:
     workflow_dispatch:
 jobs:
-    
     notecard-notehub-DFU:
         runs-on: [self-hosted, notecard-usb]
         steps:
@@ -18,14 +17,15 @@ jobs:
             # This workflow does two DFUs, so that we know at least one of
             # them will fully execute, irrespective of what version is already on the device.
             - name: Notehub DFU pass 1
-              uses: ./.github/actions/notecard-dfu
+              uses: ./.github/actions/notecard-dfu-notehub
               with:
                 serial-port: ${{ steps.capture-env.outputs.serial-port }}
-                version: "notecard-5.1.1.16026"
-                filename: "notecard-5.1.1.16026$20230511152328.bin"
+                allow: True
+                version: "notecard-5.2.1.16248"
+                filename: "notecard-5.2.1.16248$20230731172718.bin"
 
             - name: Notehub DFU pass 2
-              uses: ./.github/actions/notecard-dfu
+              uses: ./.github/actions/notecard-dfu-notehub
               with:
                 serial-port: ${{ steps.capture-env.outputs.serial-port }}
                 version: "notecard-4.4.1.4015700"

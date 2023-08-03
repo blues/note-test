@@ -1,5 +1,5 @@
-name: Notecard DFU
-description: Ensures a Notecard is running a version of firmware
+name: Notecard Notehub DFU
+description: Ensures a Notecard is running a version of firmware via Notehub DFU
 inputs:
   serial-port:
     required: true
@@ -7,9 +7,6 @@ inputs:
   filename:
     required: true
     description: The filename of the firmware to update to
-  version:
-    required: true
-    description: The version of the firmware as reported by `card.version`
 
 runs:
   using: 'composite'

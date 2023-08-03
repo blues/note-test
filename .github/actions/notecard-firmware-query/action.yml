@@ -1,0 +1,45 @@
+name: Notecard firmware query
+description: Determine the firmware name in Notehub corresponding to a given version and target.
+inputs:
+  version:
+    required: false
+    description: The version string of the firmware to get. [<major>[.<minor>[.<patch>[.build]]]]. The highest
+                        version that matches will be returned if a 4 part
+                        version is not given. So, 5.4 would fetch the highest
+                        patch version, like 5.4.10.12345, but not version 5.5
+                        or above.
+  target:
+    required: false
+    description: The firmware target
+  allow:
+    required: false
+    description: Allow unpublished firmware
+    default: "false"
+
+outputs:
+  firmware:
+    description: The firmware JSON retrieved
+    value: ${{ steps.query.outputs.firmware }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create and start virtual environment
+      shell: bash
+      run: |
+       python3 -m venv venv
+       source venv/bin/activate
+    - name: Install dependencies
+      id: query
+      shell: bash
+      working-directory: python
+      run: |
+        pip3 install -r requirements.txt
+        # only add the command-line switches when they are defined
+        # This mess will go away when we create a composite action that handles
+        # All the steps of querying, downloading and flashing firmware
+        [[ -n "${{ inputs.version }}" ]] && nfq_version=-v${{ inputs.version }}
+        [[ -n "${{ inputs.target }}" ]] && nfq_target=-t${{ inputs.target }}
+        [[ -n "${{ inputs.filename }}" ]] && nfq_filename=-f${{ inputs.filename }}
+        [[ "${{ inputs.allow }}" == "true" ]] && nfq_allow=-a
+        echo firmware=$(python3 ./notecard_firmware_query.py -j $nfq_version $nfq_target $nfq_filename $nfq_allow) >> $GITHUB_OUTPUT
