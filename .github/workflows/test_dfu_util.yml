@@ -42,5 +42,5 @@ jobs:
 #                dfu-util-serial: ${{ steps.capture-env.outputs.dfu-util-serial }}
 #                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
             - name: Run dfu-util
-              runs: |
+              run: |
                 dfu-util -S "$NOTECARD_DFU_SERIAL" -a 0 -s 0x8000000:leave -D '${{ fromJSON(steps.query.outputs.firmware).name }}'
