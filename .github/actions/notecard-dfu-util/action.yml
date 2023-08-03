@@ -18,6 +18,7 @@ runs:
        source venv/bin/activate
     - name: Install dependencies
       shell: bash
+      working-directory: python
       run: |
         pip3 install -r requirements.txt
     - name: Update firmware
