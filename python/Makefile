@@ -16,7 +16,7 @@ default: docstyle flake8 test
 venv: $(VENV_NAME)/bin/activate
 
 test: $(VENV)
-	${PYTHON} -m pytest ./ ./test --doctest-modules
+	${PYTHON} -m pytest --doctest-modules
 
 docstyle: $(VENV)
 	${PYTHON} -m pydocstyle ./ ./test
