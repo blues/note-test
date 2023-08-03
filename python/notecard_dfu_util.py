@@ -83,16 +83,16 @@ def _find_one_matching(needle: dict, haystack: list[dict]):
             raise ValueError(f"{needle} found more than once in {haystack}")
 
 
-def run_command(cmd: str, args: list[str], timeout: float = None, capture_output: bool = True):
+def run_command(cmd: str, cmd_args: list[str], timeout: float = None, capture_output: bool = True):
     """Execute an external program with given arguments and a timeout, with optional output stream capture."""
-    args_list = [cmd] + args
-    print(f"Running {' '.join(args)}")
+    args_list = [cmd] + cmd_args
+    print(f"Running {' '.join(args_list)}")
     try:
         result = subprocess.run(args_list, encoding="utf-8",
                                 capture_output=capture_output, timeout=timeout, check=True)
         return result.stdout
     except Exception as e:
-        raise RuntimeError(f"command {args} failed") from e
+        raise RuntimeError(f"command {args_list} failed") from e
 
 
 notecard_r5_dfu_id = {
@@ -138,10 +138,10 @@ def dfu_util(filename: str, serial_number: str, timeout: float):
     """Perform a DFU against a notecard with the given serial number."""
     dfu_list = run_command(
         dfu_util_cmd, ["-l"], capture_output=True, timeout=20)
-    build_dfu_util_command_args(dfu_list, serial_number, filename)
+    dfu_args = build_dfu_util_command_args(dfu_list, serial_number, filename)
 
     # Now do the transfer, sending output to stdout
-    run_command(dfu_util_cmd, args, capture_output=False, timeout=timeout)
+    run_command(dfu_util_cmd, dfu_args, capture_output=False, timeout=timeout)
 
 
 if __name__ == '__main__':
