@@ -6,6 +6,7 @@ name: Python package
 on:
   pull_request:
     branches: [ main ]
+    paths: python/**
   workflow_dispatch:
 
 jobs:
