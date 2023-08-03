@@ -33,7 +33,8 @@ jobs:
                 filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
 
             - name: Enter bootloader
-              run: echo bootloader > $NOTECARD_SERIAL_PORT
+              run: |
+                dfu-util -S "$NOTECARD_DFU_SERIAL" -l && echo bootloader > $NOTECARD_SERIAL_PORT
 
             - name: Firmware update via dfu-util
               uses: ./.github/actions/notecard-dfu-util
