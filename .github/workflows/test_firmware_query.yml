@@ -32,10 +32,9 @@ jobs:
                 # https://github.com/orgs/community/discussions/32012
                 JSON: ${{ steps.nfq1.outputs.firmware }}
                 JSON2: ${{ toJSON(steps.nfq1.outputs.firmware) }} # gets excaped quotes
-                expected_firmware: "notecard-5.2.1.16248$20230731172718.bin"
+                # todo - This is a brittle test that will need updating each time new firmware is added to the 5.x line
+                expected_firmware: "notecard-5.2.1.sean.611$20230803142033.bin"
               run: |
-                echo Firmware found is $JSON
-                echo Firmware name 1 '${{ fromJSON(env.JSON).name }}'
                 # have to use single quotes so the shell doesn't interpolate the $ in the name
                 if [[ '${{ fromJSON(steps.nfq1.outputs.firmware).name }}' != "$expected_firmware" ]]; then
                     echo Expected firmware not found. Got ${{ fromJSON(steps.nfq1.outputs.firmware).name }} but wanted $expected_firmware
