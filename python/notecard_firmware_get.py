@@ -56,7 +56,7 @@ def _get_notecard_firmware(filename, existing_md5=None) -> (dict, str):
 
     response_json: dict = response.json()
     body: dict = _assert_property(response_json, "body")
-    md5 = _assert_property(response_json, "md5")
+    _assert_property(response_json, "md5")
     payload = _assert_property(response_json, "payload")
     _assert_property(body, "length")
     # hub.upload.query and hub.upload.get return different shapes. Move stuff around to compensate
