@@ -102,16 +102,19 @@ def parse_version(version: str):
     return list(map(int, version.split('.') if version else []))
 
 
-def _filter_firmware(firmware_list: list, version: str = None, target: str = None) -> list:
+def _filter_firmware(firmware_list: list, version: str = None, target: str = None, name=None) -> list:
     required_version_components = parse_version(version)
     required_target = target or "r5"
+
+    if name and (target or version):
+        raise ValueError("cannot specify target or version when name is given")
 
     def predicate(fw: dict):
         # assume r5 target if none given
         firmware = fw["firmware"]
         target = firmware.get("target", "r5")
-        return required_target == target and \
-            matches_version(firmware, required_version_components)
+        return (name == fw["name"]) if name else \
+            (required_target == target and matches_version(firmware, required_version_components))
 
     result = filter(predicate, firmware_list)
     return list(result)
@@ -150,26 +153,21 @@ def sort_firmware(firmware: list):
     return firmware
 
 
-def find_firmware(name: str, allow: bool, as_json: bool = False, version: str = None, target: str = None):
+def find_firmware(name: str, allow: bool, version: str = None, target: str = None):
     """
     Find firmware on Notehub that matches the given criteria.
 
     When as_json is false, the firmware name found is returned as a string. Otherwise the json
     firmware descriptor is returned, also as a string.
     """
-    if name:
-        selected = query_notecard_firmware(name)
-    else:
-        firmware = list_notecard_firmware(allow=allow)
-        firmware = _filter_firmware(firmware, version, target)
-        sort_firmware(firmware)
-        if not len(firmware):
-            raise ValueError("No firmware found.")
+    firmware = list_notecard_firmware(allow=allow)
+    firmware = _filter_firmware(firmware, version, target, name)
+    sort_firmware(firmware)
+    if not len(firmware):
+        raise ValueError("No firmware found.")
 
-        selected = firmware[0]
-
-    output = json.dumps(selected) if as_json else selected["name"]
-    return output
+    selected = firmware[0]
+    return selected
 
 
 if __name__ == '__main__':
@@ -185,7 +183,7 @@ if __name__ == '__main__':
         '-t',
         '--target',
         required=False,
-        default="r5",
+        default=None,
         help='The target architecture.')
 
     parser.add_argument(
@@ -214,9 +212,10 @@ if __name__ == '__main__':
         help='Output detailed info of the firmware identified as json.')
 
     args = parser.parse_args()
-    result = find_firmware(name=args.name,
-                           allow=args.allow,
-                           as_json=args.json,
-                           target=args.target,
-                           version=args.version)
-    print(result, flush=True)
+    selected = find_firmware(name=args.name,
+                             allow=args.allow,
+                             target=args.target,
+                             version=args.version)
+
+    output = json.dumps(selected) if args.json else selected["name"]
+    print(output, flush=True)
