@@ -35,7 +35,7 @@ jobs:
             - name: Enter bootloader
               shell: bash
               run: |
-                { dfu-util -S "$NOTECARD_DFU_SERIAL" -l | grep "Found DFU:" ; } || { echo bootloader > $NOTECARD_SERIAL_PORT; sleep 5s; }
+                { dfu-util -S "$NOTECARD_DFU_SERIAL" -l | grep "Found DFU:" ; } || { echo '{"req":"card.bootloader"}' > $NOTECARD_SERIAL_PORT; sleep 5s; }
 
 #            - name: Firmware update via dfu-util
 #              uses: ./.github/actions/notecard-dfu-util
