@@ -1,0 +1,65 @@
+name: Test Notecard Firmware Query
+on:
+    workflow_dispatch:
+    pull_request:
+        branches: [ main ]
+jobs:
+    notecard-firmware-query:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+              python-version: [3.11]
+        defaults:
+          run:
+             shell: bash
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v4
+              with:
+                python-version: ${{ matrix.python-version }}
+            - name: Query 1 - test query firmware
+              id: nfq1
+              uses: ./.github/actions/notecard-firmware-query
+              with:
+                allow: true
+                version: "5"
+
+            - name: Verify Query 1
+              env:
+                # pass via an env var to avoid removing the double quotes in the json
+                # https://github.com/orgs/community/discussions/32012
+                JSON: ${{ steps.nfq1.outputs.firmware }}
+                JSON2: ${{ toJSON(steps.nfq1.outputs.firmware) }} # gets excaped quotes
+                # todo - This is a brittle test that will need updating each time new firmware is added to the 5.x line
+                expected_firmware: "notecard-5.2.1.sean.611$20230803142033.bin"
+              run: |
+                # have to use single quotes so the shell doesn't interpolate the $ in the name
+                if [[ '${{ fromJSON(steps.nfq1.outputs.firmware).name }}' != "$expected_firmware" ]]; then
+                    echo Expected firmware not found. Got ${{ fromJSON(steps.nfq1.outputs.firmware).name }} but wanted $expected_firmware
+                    exit 1
+                fi
+            - name: Query 2 - test no firmware found
+              id: nfq2
+              uses: ./.github/actions/notecard-firmware-query
+              with:
+                allow: true
+                version: "100"
+                target: "fake-target"
+              continue-on-error: true
+
+            - name: Verify Query 2
+              env:
+                # pass via an env var to avoid removing the double quotes in the json
+                # https://github.com/orgs/community/discussions/32012
+                JSON: ${{ steps.nfq2.outputs.firmware }}
+                firmware_name: ${{ steps.nfq2.outputs.firmware && fromJSON(steps.nfq2.outputs.firmware).name }}
+              run: |
+                echo Firmware found is $JSON
+                echo Firmware name 1 '${{ env.firmware_name }}'
+                # have to use single quotes so the shell doesn't interpolate the $ in the name
+                if [[ -n '${{ env.firmware_name }}' ]]; then
+                    echo Expected firmware not to be found found. Got '${{ env.firmware_name }}'
+                    exit 1
+                fi

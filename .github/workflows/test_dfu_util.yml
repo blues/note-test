@@ -1,0 +1,49 @@
+name: Test Firmware update via dfu-util
+on:
+    pull_request:
+      branches: [main]
+    workflow_dispatch:
+jobs:
+
+    notecard-dfu-util:
+        runs-on: [self-hosted, notecard-usb]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+            - name: Capture Environment
+              id: capture-env
+              # cannot use ${{ env.MY_VAR }} in action inputs, so the variables are captured
+              # as outputs of this action.
+              run: |
+                if [ -z "$NOTECARD_SERIAL_PORT" ]; then echo "::error ::NOTECARD_SERIAL_PORT not set."; fi
+                if [ -z "$NOTECARD_DFU_SERIAL" ]; then echo "::error ::NOTECARD_DFU_SERIAL not set."; fi
+                echo "serial-port=$NOTECARD_SERIAL_PORT" >> $GITHUB_OUTPUT
+                echo "dfu-util-serial=$NOTECARD_DFU_SERIAL" >> $GITHUB_OUTPUT
+
+            - name: Query firmware
+              id: query
+              uses: ./.github/actions/notecard-firmware-query
+              with:
+                allow: True
+                version: 5
+
+            - name: Get Firmware
+              uses: ./.github/actions/notecard-firmware-get
+              with:
+                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
+
+            - name: Enter bootloader
+              shell: bash
+              run: |
+                { dfu-util -S "$NOTECARD_DFU_SERIAL" -l | grep "Found DFU:" ; } || { echo '{"req":"card.bootloader"}' > $NOTECARD_SERIAL_PORT; sleep 5s; }
+
+#            - name: Firmware update via dfu-util
+#              uses: ./.github/actions/notecard-dfu-util
+#              with:
+#                dfu-util-serial: ${{ steps.capture-env.outputs.dfu-util-serial }}
+#                filename: ${{ fromJSON(steps.query.outputs.firmware).name }}
+            - name: Run dfu-util
+              working-directory: python
+              shell: bash
+              run: |
+                dfu-util -S "$NOTECARD_DFU_SERIAL" -a 0 -s 0x8000000:leave -D '${{ fromJSON(steps.query.outputs.firmware).name }}'
